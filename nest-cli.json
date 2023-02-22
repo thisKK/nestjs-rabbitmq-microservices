@@ -19,24 +19,6 @@
         "tsConfigPath": "apps/orders/tsconfig.app.json"
       }
     },
-    "my-app": {
-      "type": "application",
-      "root": "apps/my-app",
-      "entryFile": "main",
-      "sourceRoot": "apps/my-app/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/my-app/tsconfig.app.json"
-      }
-    },
-    "orders": {
-      "type": "application",
-      "root": "apps/orders",
-      "entryFile": "main",
-      "sourceRoot": "apps/orders/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/orders/tsconfig.app.json"
-      }
-    },
     "billing": {
       "type": "application",
       "root": "apps/billing",
@@ -55,13 +37,13 @@
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
     },
-    "authx": {
-      "type": "application",
-      "root": "apps/authx",
-      "entryFile": "main",
-      "sourceRoot": "apps/authx/src",
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/authx/tsconfig.app.json"
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     }
   }
