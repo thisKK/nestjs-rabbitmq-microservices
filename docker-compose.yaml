@@ -1,40 +1,32 @@
 version: "3.7"
 
 services:
-  mongodb-primary:
-    image: docker.io/bitnami/mongodb:5.0
-    environment:
-      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
-      - MONGODB_REPLICA_SET_MODE=primary
-      - MONGODB_ROOT_PASSWORD=password123
-      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+  orders:
+    container_name: orders
+    build:
+      context: .
+      dockerfile: ./apps/orders/Dockerfile
+      target: development
+    command: yarn start:dev orders
+    env_file:
+      - ./apps/orders/.env
+    depends_on:
+      - mongodb
     volumes:
-      - 'mongodb_master_data:/bitnami/mongodb'
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     ports:
-      - '27017:27017'
-
-  mongodb-secondary:
-    image: docker.io/bitnami/mongodb:5.0
-    depends_on:
-      - mongodb-primary
+      - '3000:3000'
+  mongodb:
+    container_name: mongodb
+    image: mongo
     environment:
-      - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
-      - MONGODB_REPLICA_SET_MODE=secondary
-      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
-      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
-      - MONGODB_REPLICA_SET_KEY=replicasetkey123
-
-  mongodb-arbiter:
-    image: docker.io/bitnami/mongodb:5.0
-    depends_on:
-      - mongodb-primary
-    environment:
-      - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
-      - MONGODB_REPLICA_SET_MODE=arbiter
-      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
-      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
-      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_INITDB_DATABASE=my-db
+      - MONGO_INITDB_ROOT_USERNAME=root
+    ports:
+      - 27017:27017
 
 volumes:
-  mongodb_master_data:
+  mongodb_data:
     driver: local
