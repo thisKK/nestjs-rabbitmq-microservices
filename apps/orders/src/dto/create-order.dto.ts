@@ -1,8 +1,8 @@
 import {
-  IsString,
   IsNotEmpty,
-  IsPositive,
   IsPhoneNumber,
+  IsPositive,
+  IsString,
 } from 'class-validator';
 
 export class CreateOrderRequest {

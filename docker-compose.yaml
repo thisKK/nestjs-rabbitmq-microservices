@@ -12,11 +12,36 @@ services:
       - ./apps/orders/.env
     depends_on:
       - mongodb
+      - billing
+      - rabbitmq
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     ports:
       - '3000:3000'
+
+  billing:
+    container_name: billing
+    build:
+      context: .
+      dockerfile: ./apps/billing/Dockerfile
+      target: development
+    command: yarn start:dev billing
+    env_file:
+      - ./apps/billing/.env
+    depends_on:
+      - mongodb
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq
+    ports:
+      - '5672:5672'
+
   mongodb:
     container_name: mongodb
     image: mongo
