@@ -11,7 +11,9 @@ services:
     env_file:
       - ./apps/orders/.env
     depends_on:
-      - mongodb
+      - mongodb-primary
+      - mongodb-secondary
+      - mongodb-arbiter
       - billing
       - rabbitmq
     volumes:
@@ -30,7 +32,9 @@ services:
     env_file:
       - ./apps/billing/.env
     depends_on:
-      - mongodb
+      - mongodb-primary
+      - mongodb-secondary
+      - mongodb-arbiter
       - rabbitmq
     volumes:
       - .:/usr/src/app
@@ -41,17 +45,44 @@ services:
     image: rabbitmq
     ports:
       - '5672:5672'
-
-  mongodb:
-    container_name: mongodb
-    image: mongo
+  mongodb-primary:
+    container_name: mongodb-primary
+    image: docker.io/arm64v8/mongo
     environment:
-      - MONGO_INITDB_ROOT_PASSWORD=password123
-      - MONGO_INITDB_DATABASE=my-db
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
       - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+    volumes:
+      - 'mongodb_master_data:/bitnami/mongodb'
     ports:
-      - 27017:27017
+      - '27017:27017'
+
+  mongodb-secondary:
+    container_name: mongodb-secondary
+    image: docker.io/arm64v8/mongo
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+
+  mongodb-arbiter:
+    container_name: mongodb-arbiter
+    image: docker.io/arm64v8/mongo
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
+      - MONGODB_REPLICA_SET_MODE=arbiter
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
 
 volumes:
-  mongodb_data:
+  mongodb_master_data:
     driver: local
